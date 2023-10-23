@@ -1,6 +1,9 @@
 @echo off
+title pip_installer.bat
 py -m pip install pycryptodome
 py -m pip install --upgrade pycryptodome
 py -m pip install tk
 py -m pip install --upgrade tk
-timeout /t 2 /NOBREAK >nul
+echo INFO -- You can close the program now!
+timeout /t 10 /NOBREAK >nul
+exit
