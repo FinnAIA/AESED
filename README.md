@@ -3,7 +3,7 @@ This is a open source AES256 encryption/decryption tool with error support
 
 ## How to install:
 1. If you don't have python installed then make sure that you download python from here: https://www.python.org/downloads/ 
-2. Run the pip_installer.bat file and let it complete (should only take a few seconds).
+2. Run the pip_installer.bat file and wait until it says "You can close the program now!" or just let it close on its own.
 3. Run the Main.py file, it should now work! if any issues arise please contact me/make a GitHub issue.
 
 ## Support:
