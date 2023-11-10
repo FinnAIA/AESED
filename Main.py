@@ -4,51 +4,70 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import base64
 import hashlib
-from tkinter import ttk
 import os
+from tkinter import ttk
 
+#set text box background colour
 Textbox_background = "#696969"
 
+#define encrypt_Key
 def encrypt_key(key):
     salt = b'SaltForAESKey'
     key_hash = hashlib.pbkdf2_hmac('sha256', key.encode('utf-8'), salt, 100000)
     return key_hash
 
+# Function to pad the plaintext using PKCS#7
+def pad_plaintext(plaintext):
+    block_size = 16
+    padding_length = block_size - (len(plaintext) % block_size)
+    padding = bytes([padding_length]) * padding_length
+    return plaintext + padding
+
+
+# Function to unpad the plaintext
+def unpad_plaintext(padded_plaintext):
+    padding_length = padded_plaintext[-1]
+    if padding_length < 1 or padding_length > 16:
+        raise ValueError("Invalid padding, text might be already decrypted")
+    return padded_plaintext[:-padding_length]
+
+
 def encrypt_text():
     try:
-      key = key_entry.get()
-      plaintext = plaintext_entry.get('1.0', 'end-1c').encode('utf-8')
-      iv = get_random_bytes(16)
-      cipher = AES.new(encrypt_key(key), AES.MODE_CBC, iv=iv)
-      plaintext = plaintext + b"\0" * (16 - len(plaintext) % 16)
-      ciphertext = cipher.encrypt(plaintext)
-      ciphertext_base64 = base64.b64encode(iv + ciphertext)
-      result_text.delete('1.0', 'end')
-      result_text.insert('1.0', ciphertext_base64.decode('utf-8'))
+        key = key_entry.get()
+        plaintext = plaintext_entry.get('1.0', 'end-1c').encode('utf-8')
+        iv = get_random_bytes(16)
+        cipher = AES.new(encrypt_key(key), AES.MODE_CBC, iv=iv)
+
+        plaintext = pad_plaintext(plaintext)  # Pad the plaintext
+
+        ciphertext = cipher.encrypt(plaintext)
+        ciphertext_base64 = base64.b64encode(iv + ciphertext)
+        result_text.delete('1.0', 'end')
+        result_text.insert('1.0', ciphertext_base64.decode('utf-8'))
+
     except ValueError as ve:
-        messagebox.showerror("Encryption Error ", str(ve)+"\nError code 102")
+        messagebox.showerror("Encryption Error", str(ve))
+
 
 def decrypt_text():
     try:
-      key = key_entry.get()
-      ciphertext_base64 = result_text.get('1.0', 'end-1c')
-      ciphertext = base64.b64decode(ciphertext_base64)
-      iv = ciphertext[:16]
-      ciphertext = ciphertext[16:]
-      cipher = AES.new(encrypt_key(key), AES.MODE_CBC, iv=iv)
+        key = key_entry.get()
+        ciphertext_base64 = result_text.get('1.0', 'end-1c')
+        ciphertext = base64.b64decode(ciphertext_base64)
+        iv = ciphertext[:16]
+        ciphertext = ciphertext[16:]
+        cipher = AES.new(encrypt_key(key), AES.MODE_CBC, iv=iv)
 
-      plaintext = plaintext.rstrip(b"\0")
-      try:
+        plaintext = cipher.decrypt(ciphertext)
+
+        plaintext = unpad_plaintext(plaintext)  # Unpad the plaintext
+
         result_text.delete('1.0', 'end')
         result_text.insert('1.0', plaintext.decode('utf-8'))
 
-        # Display a success message
-        messagebox.showinfo("Decryption Complete", "Decryption was successful!")
-      except UnicodeDecodeError:
-        # Display an error message
-        messagebox.showerror("Decryption Error", "Decryption failed. Invalid key or ciphertext, error code 101")
     except ValueError as ve:
-        messagebox.showerror("Decryption Error ", str(ve)+"\nError code 100")
+        messagebox.showerror("Decryption Error", str(ve))
 
 
 def close_app():
