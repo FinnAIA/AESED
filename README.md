@@ -1,5 +1,6 @@
 # AESED
-This is a open source AES256 encryption/decryption tool with error support
+This is a open source AES256 encryption/decryption tool with error support.
+NOTE: Versions after 1.0.3(portable and local) will be non-interchangerble with versions 1.0.0 to 1.0.3 due to a change of salt key for security reasons.
 
 ## How to install:
 1. If you don't have python installed then make sure that you download python from [here](https://www.python.org/downloads/)
